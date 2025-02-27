@@ -43,7 +43,7 @@ const Blog = async ({ params, searchParams }: Props) => {
       <PagePagination pagination={pagination}/>
       <div className="grid gap-4 justify-items-center">
         {data.map((post: Post) => (
-          <PageCardImage key={post.id} post={post} className="m-4"/>
+          <PageCardImage key={post.id} post={post}/>
         ))}
       </div>
     </div>
