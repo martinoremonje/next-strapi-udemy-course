@@ -7,6 +7,8 @@ import { fetchApi } from "@/helpers/fetch-api";
 import { Post } from "@/interfaces/post";
 import Image from "next/image";
 
+type tParams = Promise<{ slug: string }>;
+
 interface Props {
   params: {
     slug: string;
@@ -26,8 +28,9 @@ const getPost = async (slug: string) => {
   return data[0];
 };
 
-const Slug = async ({ params }: Props) => {
-  const post: Post = await getPost(params.slug);
+const Slug = async ({ params }: {params: tParams}) => {
+  const {slug} = await params;
+  const post: Post = await getPost(slug);
 
   if (!post) {
     notFound();
