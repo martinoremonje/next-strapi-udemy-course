@@ -1,47 +1,62 @@
-import { fetchApi } from '@/helpers/fetch-api';
-import { Post } from '@/interfaces/post';
-import { notFound } from 'next/navigation';
-import React from 'react';
-import Image from 'next/image';
-import PageHeader from '@/components/PageHeader';
-import { formatDate } from '@/helpers/format-date-helper';
+import { MDXRemote } from "next-mdx-remote/rsc";
 
-const getData = async (slug: string): Promise<Post | null> => {
-    const path = "/posts";
-    const urlParamsObject = {
-        populate: "*",
-        filters: { slug }
-    };
-    const { data } = await fetchApi(path, urlParamsObject);
-    return data[0] || null;
+import { notFound } from "next/navigation";
+import {  getStrapiURL } from "@/helpers/api-helper";
+import { formatDate } from "@/helpers/format-date-helper";
+import { fetchApi } from "@/helpers/fetch-api";
+import { Post } from "@/interfaces/post";
+import Image from "next/image";
+
+interface Props {
+  params: {
+    slug: string;
+  };
+}
+
+const getPost = async (slug: string) => {
+  const path = `/posts`;
+  const urlParamsObject = {
+    filters: {
+      slug: slug,
+    },
+    populate: "image",
+  };
+
+  const { data } = await fetchApi(path, urlParamsObject);
+  return data[0];
 };
 
+const Slug = async ({ params }: Props) => {
+  const post: Post = await getPost(params.slug);
 
+  if (!post) {
+    notFound();
+  }
 
-const Slug = async ({ params }) => {
-    const {slug} = params
-    const post: Post | null = await getData(slug);
+  const { title, description, publishedAt, image, body } = post;
+  const { url, width, height } = image.formats.medium;
 
-    if (!post) {
-        return notFound();
-    }
-
-    const { title, body, createdAt, image } = post;
-    const { url, width, height } = image.formats.medium;
-    const bodie = body[0].children[0].text;
-
-    return (
-        <div className='space-y-8'>
-            <PageHeader title={title} />
-            <p className='text-gray-500'>
-                {formatDate(createdAt)}
-            </p>
-            <Image className="rounded-t-lg" src={url} alt={`image ${title}`} width={width} height={height} />
-            <div className='prose'>
-                {bodie}
-            </div>
-        </div>
-    );
+  return (
+    <div className="space-y-8">
+      <h1 className="text-5xl font-extrabold dark:text-white">{title}</h1>
+      <p className="text-gray-500 mb-2">{formatDate(publishedAt)}</p>
+      <Image
+        className="h-auto rounded-lg"
+        src={url}
+        alt={`imagen de ${title}`}
+        width={width}
+        height={height}
+      />
+      <p className="mb-3 text-gray-500 dark:text-gray-400 first-line:uppercase first-line:tracking-widest first-letter:text-7xl first-letter:font-bold first-letter:text-gray-900 dark:first-letter:text-gray-100 first-letter:mr-3 first-letter:float-left">
+        {description}
+      </p>
+      <div className="prose">
+        {/* Este error en particular está codificado en TypeScript. El equipo de React está trabajando con el equipo de TypeScript para resolver esto. */}
+        {/* https://github.com/vercel/next.js/issues/42292 */}
+        {/* @ts-expect-error Server Component */}
+        <MDXRemote source={body} />
+      </div>
+    </div>
+  );
 };
-
 export default Slug;
