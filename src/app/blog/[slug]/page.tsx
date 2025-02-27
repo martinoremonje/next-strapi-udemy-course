@@ -28,8 +28,8 @@ const getPost = async (slug: string) => {
   return data[0];
 };
 
-const Slug = async ({ params }: {params: tParams}) => {
-  const {slug} = await params;
+const Slug = async (porps: {params: tParams}) => {
+  const {slug} = await porps.params;
   const post: Post = await getPost(slug);
 
   if (!post) {
