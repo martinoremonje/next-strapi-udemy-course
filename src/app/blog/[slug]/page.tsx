@@ -1,35 +1,33 @@
 import { MDXRemote } from "next-mdx-remote/rsc";
-
 import { notFound } from "next/navigation";
-import {  getStrapiURL } from "@/helpers/api-helper";
+import { getStrapiURL } from "@/helpers/api-helper";
 import { formatDate } from "@/helpers/format-date-helper";
 import { fetchApi } from "@/helpers/fetch-api";
 import { Post } from "@/interfaces/post";
 import Image from "next/image";
 
-type tParams = Promise<{ slug: string }>;
+type Params = Promise<{ slug: string }>;
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
-interface Props {
-  params: {
-    slug: string;
-  };
+export async function generateMetadata(props: { 
+  params: Params; 
+  searchParams: SearchParams; 
+}) {
+  const params = await props.params;
+  const searchParams = await props.searchParams;
+  const slug = params.slug;
+  const query = searchParams.query;
 }
 
-const getPost = async (slug: string) => {
-  const path = `/posts`;
-  const urlParamsObject = {
-    filters: {
-      slug: slug,
-    },
-    populate: "image",
-  };
+export default async function Slug(props: { 
+  params: Params; 
+  searchParams: SearchParams; 
+}) {
+  const params = await props.params;
+  const searchParams = await props.searchParams;
+  const slug = params.slug;
+  const query = searchParams.query;
 
-  const { data } = await fetchApi(path, urlParamsObject);
-  return data[0];
-};
-
-const Slug = async (porps: {params: tParams}) => {
-  const {slug} = await porps.params;
   const post: Post = await getPost(slug);
 
   if (!post) {
@@ -61,5 +59,17 @@ const Slug = async (porps: {params: tParams}) => {
       </div>
     </div>
   );
+}
+
+const getPost = async (slug: string) => {
+  const path = `/posts`;
+  const urlParamsObject = {
+    filters: {
+      slug: slug,
+    },
+    populate: "image",
+  };
+
+  const { data } = await fetchApi(path, urlParamsObject);
+  return data[0];
 };
-export default Slug;
