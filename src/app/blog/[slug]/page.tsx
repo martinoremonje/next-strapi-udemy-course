@@ -16,13 +16,9 @@ const getData = async (slug: string): Promise<Post | null> => {
     return data[0] || null;
 };
 
-interface Props {
-    params: {
-        slug: string;
-    };
-}
 
-const Slug = async ({ params }: Props) => {
+
+const Slug = async ({ params }) => {
     const {slug} = params
     const post: Post | null = await getData(slug);
 
